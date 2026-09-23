@@ -95,4 +95,6 @@ GPU package: [triMGE-gpu](https://version.helsinki.fi/mduddin/triMGE-gpu).
 
 ## License
 
-MIT
+triMGE-cpu is released under the [MIT License](LICENSE) (copyright 2026 Md Karim Uddin). You may use, copy, modify, and distribute this package, including the trained classifiers in `models/`, for academic or commercial work. Keep the copyright notice and the license text with any copy.
+
+The package is provided as is, without warranty. It does not include HyenaDNA code or weights.
