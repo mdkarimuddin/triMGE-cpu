@@ -6,8 +6,6 @@ One command to:
 2. **Classify** with k-mer k5 + SVM (3-class + P–P subtypes)
 3. **Write automated reports** — tables and figures for both stages
 
-No HyenaDNA. No GPU.
-
 ## What you need
 
 - A folder of nucleotide FASTAs (`.fna` / `.fa` / `.fasta`), **or** one combined FASTA
@@ -134,4 +132,3 @@ Details: [REPORTS.md](REPORTS.md).
 
 - Sequences shorter than `--min-length` (default 100 bp) are skipped.
 - Contigs ≥ ~10 kb work best (see manuscript fragment analysis).
-- This package is the CPU baseline (~91.4% 3-class). For max accuracy (+0.9 pp) use the hybrid `triMGE` package with HyenaDNA + GPU.

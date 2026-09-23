@@ -11,4 +11,4 @@ After `python scripts/export_models.py`, this directory contains:
 | `pp_label_encoder.joblib` | LabelEncoder → subtype names |
 | `class_metadata.json` | Model names, classes, hyperparameters |
 
-All models are CPU-only. No HyenaDNA weights.
+All models are included in this directory.

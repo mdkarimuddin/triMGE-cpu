@@ -7,7 +7,7 @@
 | 3-class MGE | k-mer k5 (1024-d) | SVM (RBF, C=1.0) | 91.4% held-out (train-only fit in manuscript; train+val export ≈91.9%) |
 | P-P subtyping | k-mer k5 (1024-d) | SVM (RBF, C=10) | 92.2% accuracy |
 
-Both stages use `StandardScaler` before SVM. No HyenaDNA. No GPU.
+Both stages use `StandardScaler` before SVM.
 
 ## Artifacts
 
@@ -30,6 +30,3 @@ python scripts/export_models.py \
   --fit-on train_val
 ```
 
-## Why not HyenaDNA?
-
-The hybrid HyenaDNA+k5 RF reaches 92.3% (+0.9 pp). For portable CPU deployment, k-mer SVM is the recommended default.

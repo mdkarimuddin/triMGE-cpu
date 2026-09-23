@@ -3,7 +3,6 @@
 ## Requirements
 
 - Python ≥ 3.10
-- CPU only (no GPU, no CUDA, no PyTorch)
 - Dependencies: `numpy`, `scikit-learn`, `joblib`, `pandas`, `openpyxl`
 - Optional for figures: `matplotlib` (install with `[report]`)
 

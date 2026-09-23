@@ -1,6 +1,6 @@
 # triMGE-cpu
 
-triMGE-cpu classifies mobile genetic element sequences on CPU with k-mer models. It does not use HyenaDNA, a GPU, or PyTorch. A run first labels each sequence as phage, phage-plasmid, or plasmid, then assigns a phage-plasmid subtype to the sequences called phage-plasmid.
+triMGE-cpu classifies mobile genetic element sequences with k-mer models. A run first labels each sequence as phage, phage-plasmid, or plasmid, then assigns a phage-plasmid subtype to the sequences called phage-plasmid.
 
 The default pipeline writes both stages:
 
@@ -97,4 +97,4 @@ GPU package: [triMGE-gpu](https://version.helsinki.fi/mduddin/triMGE-gpu).
 
 triMGE-cpu is released under the [MIT License](LICENSE) (copyright 2026 Md Karim Uddin). You may use, copy, modify, and distribute this package, including the trained classifiers in `models/`, for academic or commercial work. Keep the copyright notice and the license text with any copy.
 
-The package is provided as is, without warranty. It does not include HyenaDNA code or weights.
+The package is provided as is, without warranty.
