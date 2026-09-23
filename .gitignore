@@ -5,8 +5,6 @@ __pycache__/
 .eggs/
 dist/
 build/
-models/*.joblib
-!models/README.md
 logs/
 runs/
 *.sif
