@@ -2,12 +2,16 @@
 
 ## Deployed models
 
-| Task | Features | Classifier | Manuscript metric |
-|------|----------|------------|-------------------|
-| 3-class MGE | k-mer k5 (1024-d) | SVM (RBF, C=1.0) | 91.4% held-out (train-only fit in manuscript; train+val export ≈91.9%) |
-| P-P subtyping | k-mer k5 (1024-d) | SVM (RBF, C=10) | 92.2% accuracy |
+| Task | Features | Classifier | Manuscript test | Shipped weights on that test |
+|------|----------|------------|-----------------|------------------------------|
+| 3-class MGE | k-mer k5 (1024-d) | SVM (RBF, C=1.0) | 91.4% accuracy and macro F1 | 91.9% accuracy and macro F1 |
+| P-P subtyping | k-mer k5 (1024-d) | SVM (RBF, C=10) | 92.2% accuracy, 92.8% macro F1 | See below |
 
 Both stages use `StandardScaler` before SVM.
+
+The manuscript percentages are the models fit on the training split only. The weights in `models/` were fit on train plus validation. Scored on the same 638 held-out sequences, those shipped weights reach 91.9% accuracy and 91.9% macro F1.
+
+The 92.2% subtype accuracy is the manuscript result on true phage-plasmid sequences. Stage 2 runs only after stage 1 calls a sequence phage-plasmid. The manuscript length check for this k5 SVM stays high on contigs of at least about 10 kb and falls to 69.9% at 1 kb. This package still classifies sequences down to 100 bp.
 
 ## Artifacts
 
