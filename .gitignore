@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+.eggs/
+dist/
+build/
+models/*.joblib
+!models/README.md
+logs/
+runs/
+*.sif
+.DS_Store

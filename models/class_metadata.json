@@ -1,0 +1,81 @@
+{
+  "tool": "triMGE-cpu",
+  "tool_version": "0.1.0",
+  "mge_model": {
+    "name": "k5 + SVM",
+    "features": [
+      "kmer_k5"
+    ],
+    "class_names": [
+      "phage",
+      "phage_plasmid",
+      "plasmid"
+    ],
+    "hyperparameters": {
+      "kernel": "rbf",
+      "C": 1.0,
+      "probability": true,
+      "random_state": 42
+    },
+    "requires_gpu": false
+  },
+  "pp_subtype_model": {
+    "name": "k5 + SVM",
+    "features": [
+      "kmer_k5"
+    ],
+    "class_names": [
+      "AB",
+      "Actinophage_A",
+      "BigBertha",
+      "IEBH-Waukesha",
+      "N15",
+      "P1",
+      "PiSa",
+      "SSU5_pHCM2",
+      "Singleton",
+      "VP882",
+      "cp32",
+      "p48",
+      "pKpn",
+      "pMT1",
+      "pSLy3"
+    ],
+    "hyperparameters": {
+      "kernel": "rbf",
+      "C": 10,
+      "gamma": "scale",
+      "probability": true,
+      "random_state": 42
+    },
+    "requires_gpu": false
+  },
+  "export": {
+    "fit_on": "train_val",
+    "n_mge_samples": 3610,
+    "n_pp_samples": 1414,
+    "pp_classes": [
+      "AB",
+      "Actinophage_A",
+      "BigBertha",
+      "IEBH-Waukesha",
+      "N15",
+      "P1",
+      "PiSa",
+      "SSU5_pHCM2",
+      "Singleton",
+      "VP882",
+      "cp32",
+      "p48",
+      "pKpn",
+      "pMT1",
+      "pSLy3"
+    ],
+    "mge_class_names": [
+      "phage",
+      "phage_plasmid",
+      "plasmid"
+    ],
+    "note": "CPU-only package; no HyenaDNA"
+  }
+}
