@@ -23,7 +23,5 @@ def test_example_fasta_writes_both_report_steps(tmp_path):
     assert (work / "02_predictions" / "predictions.tsv").is_file()
     assert (work / "03_report" / "01_three_class" / "tables" / "three_class_counts.csv").is_file()
     assert list((work / "03_report" / "01_three_class" / "figures").glob("*.pdf"))
-    assert (work / "03_report" / "02_pp_subtype").is_dir()
-    step2_tables = work / "03_report" / "02_pp_subtype" / "tables"
-    assert step2_tables.is_dir()
-    assert list(step2_tables.glob("*"))
+    assert list((work / "03_report" / "02_pp_subtype" / "figures").glob("*.pdf"))
+    assert (work / "03_report" / "02_pp_subtype" / "tables" / "pp_subtype_counts.csv").is_file()
