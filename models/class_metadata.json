@@ -76,6 +76,6 @@
       "phage_plasmid",
       "plasmid"
     ],
-    "note": "CPU-only package; no HyenaDNA"
+    "note": "k-mer k5 SVM models shipped with the package"
   }
 }
