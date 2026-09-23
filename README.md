@@ -20,7 +20,10 @@ cd triMGE-cpu
 
 **2. Install once**
 
+On CSC, load Python 3.12 first. The default `python3` on a login node can be 3.9, which cannot install this package.
+
 ```bash
+module load python-data
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[report]"

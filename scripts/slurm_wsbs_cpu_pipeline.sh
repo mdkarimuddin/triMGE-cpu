@@ -10,7 +10,7 @@
 #SBATCH --output=/scratch/project_xxxxxxx/triMGE-cpu/logs/wsbs_cpu_%j.out
 #SBATCH --error=/scratch/project_xxxxxxx/triMGE-cpu/logs/wsbs_cpu_%j.err
 #
-# Run the same WSBS parent contigs used by GPU triMGE through triMGE-cpu.
+# Classify the WSBS parent contigs with triMGE-cpu.
 
 set -euo pipefail
 
@@ -28,7 +28,7 @@ module load python-data
 export PYTHONPATH="${CPU_REPO}/src:${PYTHONPATH:-}"
 cd "${CPU_REPO}"
 
-echo "=== triMGE-cpu on GPU-pipeline sequences ==="
+echo "=== triMGE-cpu ==="
 echo "INPUT_FASTA=${INPUT_FASTA}"
 echo "WORKDIR=${WORKDIR}"
 echo "MODELS=${MODELS}"

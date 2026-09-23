@@ -6,7 +6,7 @@
 - Dependencies: `numpy`, `scikit-learn`, `joblib`, `pandas`, `openpyxl`
 - Optional for figures: `matplotlib` (install with `[report]`)
 
-On CSC Roihu / Puhti:
+On CSC, load the Python 3.12 module before creating a virtual environment. The default `python3` on a login node can be 3.9, which cannot install scikit-learn 1.8.
 
 ```bash
 module load python-data

@@ -28,7 +28,7 @@ class SequencePrediction:
 
 class TriMGECPUClassifier:
     """
-    triMGE-cpu two-stage classifier (no HyenaDNA / GPU):
+    triMGE-cpu two-stage classifier:
       1) k5 + SVM -> phage / phage-plasmid / plasmid
       2) k5 + SVM on predicted phage-plasmids -> 15 subtypes
     """

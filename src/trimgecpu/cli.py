@@ -21,8 +21,7 @@ def build_parser() -> argparse.ArgumentParser:
         description=(
             "triMGE-cpu: CPU-only classification of mobile genetic elements. "
             "Stage 1: phage / phage-plasmid / plasmid (k-mer k5 + SVM). "
-            "Stage 2: P-P subtype for predicted phage-plasmids (k-mer k5 + SVM). "
-            "No HyenaDNA / GPU required."
+            "Stage 2: P-P subtype for predicted phage-plasmids (k-mer k5 + SVM)."
         ),
     )
     parser.add_argument("-i", "--input", required=True, help="Input FASTA file")

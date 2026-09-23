@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """
-Export CPU-only inference models (k-mer k5 SVM) from unified benchmark artifacts.
-
-No HyenaDNA embeddings required.
+Export k-mer k5 SVM models from the training artifacts.
 
 Example:
   python scripts/export_models.py \\
@@ -160,7 +158,7 @@ def export_models(
         "n_pp_samples": int(len(pp_y)),
         "pp_classes": list(pp_encoder.classes_),
         "mge_class_names": MGE_CLASS_NAMES,
-        "note": "CPU-only package; no HyenaDNA",
+        "note": "k-mer k5 SVM models shipped with the package",
     }
 
     bundle = ModelBundle(
