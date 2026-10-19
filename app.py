@@ -217,16 +217,40 @@ def subtype_probability_chart(predictions) -> alt.Chart | None:
     )
 
 
+def paint_class(value: str) -> str:
+    color = {
+        "Phage": "#1F4E79",
+        "Phage-Plasmid": "#C47B2B",
+        "Plasmid": "#2F6F4E",
+    }.get(value)
+    if not color:
+        return ""
+    return f"color: {color}; font-weight: 600"
+
+
 def render_results(predictions, skipped: int, total_bases: int) -> None:
+    st.markdown("### Results")
     if skipped:
         st.info(f"Skipped {skipped} sequence(s) shorter than 100 bp.")
     phage_plasmids = sum(1 for pred in predictions if pred.pp_subtype)
-    left, middle, right = st.columns(3)
-    left.metric("Sequences", len(predictions))
-    middle.metric("Phage-plasmid calls", phage_plasmids)
-    right.metric("Bases", f"{total_bases:,}")
-    st.dataframe(result_rows(predictions), use_container_width=True, hide_index=True)
-    st.subheader("Class probabilities")
+    with st.container(border=True):
+        left, middle, right = st.columns(3)
+        left.metric("Sequences", len(predictions))
+        middle.metric("Phage-plasmid calls", phage_plasmids)
+        right.metric("Bases", f"{total_bases:,}")
+        table = pd.DataFrame(result_rows(predictions))
+        st.dataframe(
+            table.style.map(paint_class, subset=["Class"]),
+            use_container_width=True,
+            hide_index=True,
+        )
+        st.download_button(
+            "Download TSV",
+            data=predictions_to_tsv(predictions),
+            file_name="trimge_cpu_predictions.tsv",
+            mime="text/tab-separated-values",
+        )
+    st.markdown("### Class probabilities")
     st.altair_chart(class_probability_chart(predictions), use_container_width=True)
     st.caption(
         "The label is the SVM decision. The bars are calibrated probabilities, "
@@ -234,51 +258,95 @@ def render_results(predictions, skipped: int, total_bases: int) -> None:
     )
     subtype_chart = subtype_probability_chart(predictions)
     if subtype_chart is not None:
-        st.subheader("Phage-plasmid subtype probabilities")
+        st.markdown("### Phage-plasmid subtype probabilities")
         st.altair_chart(subtype_chart, use_container_width=True)
-    st.download_button(
-        "Download TSV",
-        data=predictions_to_tsv(predictions),
-        file_name="trimge_cpu_predictions.tsv",
-        mime="text/tab-separated-values",
+
+
+def inject_styles() -> None:
+    st.markdown(
+        """
+        <style>
+        .block-container { max-width: 980px; padding-top: 1.4rem; }
+        .trimge-kicker {
+            margin: 0;
+            color: #1F4E79;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .trimge-title {
+            margin: 0.15rem 0 0.35rem 0;
+            font-size: 2.4rem;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
+        .trimge-lede { margin: 0 0 0.9rem 0; font-size: 1.05rem; color: #243040; }
+        .trimge-legend { display: flex; flex-wrap: wrap; gap: 0.55rem; margin: 0 0 1.1rem 0; }
+        .trimge-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.28rem 0.65rem;
+            border-radius: 999px;
+            background: #FFFFFF;
+            border: 1px solid #E2E6EC;
+            font-size: 0.86rem;
+        }
+        .trimge-dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; display: inline-block; }
+        footer { visibility: hidden; }
+        </style>
+        """,
+        unsafe_allow_html=True,
     )
 
 
-st.title("triMGE-cpu")
+inject_styles()
 st.markdown(
-    "Classify a nucleotide sequence as **phage**, **phage-plasmid**, or **plasmid**. "
-    "A sequence called phage-plasmid also receives one of 15 phage-plasmid subtypes."
-)
-st.caption(
-    "The app runs the 5-mer SVM weights shipped with triMGE-cpu. "
-    "On the manuscript test set those weights reach 91.9% accuracy. "
-    "Sequences shorter than 100 bp are skipped. The same classifier is strongest "
-    "on contigs of about 10 kb or longer."
-)
-
-source = st.radio(
-    "Input",
-    ["Paste FASTA", "Upload a file", "Example sequences"],
-    horizontal=True,
+    """
+    <p class="trimge-kicker">Mobile genetic element classifier</p>
+    <h1 class="trimge-title">triMGE-cpu</h1>
+    <p class="trimge-lede">Classify a nucleotide sequence as phage, phage-plasmid, or plasmid.
+    A phage-plasmid call also receives one of 15 subtypes.</p>
+    <div class="trimge-legend">
+      <span class="trimge-chip"><span class="trimge-dot" style="background:#1F4E79"></span>Phage</span>
+      <span class="trimge-chip"><span class="trimge-dot" style="background:#C47B2B"></span>Phage-plasmid</span>
+      <span class="trimge-chip"><span class="trimge-dot" style="background:#2F6F4E"></span>Plasmid</span>
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
-fasta_text = ""
-if source == "Paste FASTA":
-    fasta_text = st.text_area(
-        "FASTA",
-        height=220,
-        placeholder=">sequence_1\nACGTACGT...",
-        label_visibility="collapsed",
+with st.container(border=True):
+    source = st.radio(
+        "Input",
+        ["Paste FASTA", "Upload a file", "Example sequences"],
+        horizontal=True,
     )
-elif source == "Upload a file":
-    uploaded = st.file_uploader("FASTA file", type=["fa", "fna", "fasta", "txt"])
-    if uploaded is not None:
-        fasta_text = uploaded.getvalue().decode("utf-8", errors="replace")
-else:
-    fasta_text = EXAMPLE_FASTA.read_text()
-    st.caption(f"Using {EXAMPLE_FASTA.name}.")
+    fasta_text = ""
+    if source == "Paste FASTA":
+        fasta_text = st.text_area(
+            "FASTA",
+            height=200,
+            placeholder=">sequence_1\nACGTACGT...",
+            label_visibility="collapsed",
+        )
+    elif source == "Upload a file":
+        uploaded = st.file_uploader("FASTA file", type=["fa", "fna", "fasta", "txt"])
+        if uploaded is not None:
+            fasta_text = uploaded.getvalue().decode("utf-8", errors="replace")
+    else:
+        fasta_text = EXAMPLE_FASTA.read_text()
+        st.caption("Five sequences from the included example.")
+    classify = st.button("Classify", type="primary", disabled=not fasta_text.strip())
 
-classify = st.button("Classify", type="primary", disabled=not fasta_text.strip())
+with st.expander("About this classifier"):
+    st.markdown(
+        "The app runs the 5-mer SVM weights shipped with triMGE-cpu. "
+        "On the manuscript test set those weights reach 91.9% accuracy. "
+        "Sequences shorter than 100 bp are skipped. The same classifier is strongest "
+        "on contigs of about 10 kb or longer."
+    )
 
 if classify:
     if len(fasta_text) > MAX_CHARS:
