@@ -34,6 +34,20 @@ PP_SUBTYPE_CLASSES = [
 KMER_K = 5
 MIN_SEQUENCE_LENGTH = 100
 
+# Limits for one run of the public demo.
+DEMO_MAX_SEQUENCES = 100
+DEMO_MAX_BASES = 2_000_000
+DEMO_MAX_CHARS = 5_000_000
+
+
+def demo_rejection(n_chars: int, n_sequences: int, n_bases: int) -> str | None:
+    """Return why a public-demo submission is too large, or None when it is allowed."""
+    if n_chars > DEMO_MAX_CHARS:
+        return "chars"
+    if n_sequences > DEMO_MAX_SEQUENCES or n_bases > DEMO_MAX_BASES:
+        return "batch"
+    return None
+
 # Best CPU 3-class model: k-mer k5 + SVM (91.4% held-out; manuscript baseline).
 # Matches phage-plasmid-analysis/puhti_scripts/scripts/02_train_kmer_models.py
 MGE_SVM_PARAMS = {

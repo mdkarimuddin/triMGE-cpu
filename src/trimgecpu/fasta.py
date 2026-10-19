@@ -52,3 +52,42 @@ def parse_fasta(path: str | Path) -> list[FastaRecord]:
 def iter_fasta_records(path: str | Path) -> Iterator[FastaRecord]:
     """Yield cleaned FASTA records one at a time."""
     yield from parse_fasta(path)
+
+
+def parse_fasta_text(text: str) -> tuple[list[FastaRecord], int]:
+    """Parse FASTA text. A bare sequence is accepted as one record.
+
+    Returns the retained records and how many non-empty sequences were shorter
+    than the minimum length.
+    """
+    records: list[FastaRecord] = []
+    skipped = 0
+    current_id: str | None = None
+    chunks: list[str] = []
+    bare_index = 0
+
+    def flush() -> None:
+        nonlocal skipped
+        if current_id is None:
+            return
+        sequence = clean_sequence("".join(chunks))
+        if len(sequence) >= MIN_SEQUENCE_LENGTH:
+            records.append(FastaRecord(current_id, sequence))
+        elif sequence:
+            skipped += 1
+
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if line.startswith(">"):
+            flush()
+            current_id = line[1:].split()[0] or f"sequence_{len(records) + 1}"
+            chunks = []
+            continue
+        if current_id is None:
+            bare_index += 1
+            current_id = f"sequence_{bare_index}"
+        chunks.append(line)
+    flush()
+    return records, skipped
