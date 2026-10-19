@@ -9,7 +9,7 @@
 
 Both stages use `StandardScaler` before SVM.
 
-The manuscript percentages are the models fit on the training split only. The weights in `models/` were fit on train plus validation. Scored on the same 638 held-out sequences, those shipped weights reach 91.9% accuracy and 91.9% macro F1.
+The manuscript percentages are the models fit on the training split only. The weights in `models/` were fit on train plus validation. Scored on the same 638 test sequences, those shipped weights reach 91.9% accuracy and 91.9% macro F1.
 
 The 92.2% subtype accuracy is the manuscript result on true phage-plasmid sequences. Stage 2 runs only after stage 1 calls a sequence phage-plasmid. The manuscript length check for this k5 SVM stays high on contigs of at least about 10 kb and falls to 69.9% at 1 kb. This package still classifies sequences down to 100 bp.
 
@@ -25,6 +25,8 @@ The 92.2% subtype accuracy is the manuscript result on true phage-plasmid sequen
 | `class_metadata.json` | Metadata |
 
 ## Export
+
+The benchmark tables are not in this repository. The command below is how `models/` was written. Another machine cannot rerun it without those tables.
 
 ```bash
 python scripts/export_models.py \

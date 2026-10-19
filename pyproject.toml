@@ -7,7 +7,7 @@ name = "trimge-cpu"
 version = "0.1.0"
 description = "triMGE-cpu: CPU-only k-mer SVM classification of phage, phage-plasmid, and plasmid"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Md Karim Uddin" }]
 dependencies = [

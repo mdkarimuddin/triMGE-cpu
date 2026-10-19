@@ -344,6 +344,7 @@ with st.expander("About this classifier"):
     st.markdown(
         "The app runs the 5-mer SVM weights shipped with triMGE-cpu. "
         "On the manuscript test set those weights reach 91.9% accuracy. "
+        "The manuscript reports 91.4% for the model fit on the training split only. "
         "Sequences shorter than 100 bp are skipped. The same classifier is strongest "
         "on contigs of about 10 kb or longer."
     )

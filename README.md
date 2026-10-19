@@ -1,5 +1,7 @@
 # triMGE-cpu
 
+[![tests](https://github.com/mdkarimuddin/triMGE-cpu/actions/workflows/tests.yml/badge.svg)](https://github.com/mdkarimuddin/triMGE-cpu/actions/workflows/tests.yml)
+
 triMGE-cpu classifies mobile genetic element sequences with k-mer models. A run first labels each sequence as phage, phage-plasmid, or plasmid, then assigns a phage-plasmid subtype to the sequences called phage-plasmid.
 
 The default pipeline writes both stages:
@@ -7,14 +9,25 @@ The default pipeline writes both stages:
 1. **3-class classification** — CSV tables and PDF figures in `03_report/01_three_class/`
 2. **P-P classification** — CSV tables and PDF figures in `03_report/02_pp_subtype/`
 
-Step 2 figures are written when at least one sequence is predicted as phage-plasmid. Trained models are already in `models/`. You need Python 3.10 or newer. Input files are nucleotide FASTA (`.fa`, `.fna`, or `.fasta`).
+Step 2 figures are written when at least one sequence is predicted as phage-plasmid. Trained models are already in `models/`. You need Python 3.11 or newer. Input files are nucleotide FASTA (`.fa`, `.fna`, or `.fasta`).
+
+## Results
+
+The manuscript numbers are the models fit on the training split only. The weights in `models/` were fit on the training and validation sequences and then scored on the same 638 test sequences.
+
+| Stage | Classifier | Manuscript | Shipped weights |
+|-------|------------|------------|-----------------|
+| Phage / phage-plasmid / plasmid | 5-mer SVM | 91.4% accuracy and macro F1 | 91.9% accuracy and macro F1 |
+| Phage-plasmid subtype | 5-mer SVM | 92.2% accuracy, 92.8% macro F1 | See [docs/MODELS.md](docs/MODELS.md) |
+
+The subtype percentage is the manuscript result on true phage-plasmid sequences. Accuracy stays high on contigs of about 10 kb or longer and is 69.9% at 1 kb. This package still classifies sequences down to 100 bp.
 
 ## Beginner steps
 
 **1. Clone the repository and enter it**
 
 ```bash
-git clone https://version.helsinki.fi/mduddin/triMGE-cpu.git
+git clone https://github.com/mdkarimuddin/triMGE-cpu.git
 cd triMGE-cpu
 ```
 
@@ -94,20 +107,18 @@ trimge-cpu-report -i predictions.tsv -o report_out
 | [Reports](docs/REPORTS.md) | CSV and PDF outputs for both steps |
 | [Models](docs/MODELS.md) | Classifiers included in `models/` |
 
-GPU package: [triMGE-gpu](https://version.helsinki.fi/mduddin/triMGE-gpu).
+The GPU package, triMGE-gpu, is distributed separately.
 
 ## Public demo
 
-`app.py` is a Streamlit page for the classifiers in `models/`. It accepts a pasted FASTA, an uploaded file, or the included example. One public run is limited to 100 sequences and 2,000,000 bp.
+https://trimge-cpu-wxkbzdebrh3nejpcjdhjum.streamlit.app/
+
+`app.py` is that page. It accepts a pasted FASTA, an uploaded file, or the included example. One public run is limited to 100 sequences and 2,000,000 bp. Keep scikit-learn in the 1.8 series so the shipped `.joblib` files load.
 
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
-
-[Streamlit Community Cloud](https://share.streamlit.io/) deploys this file from a **public GitHub** repository. Set the main file to `app.py`. The dependency file is `requirements.txt`. Keep scikit-learn in the 1.8 series so the shipped `.joblib` files load.
-
-The University of Helsinki GitLab remote is not a Streamlit Cloud source. To publish the demo, push this repository to a public GitHub repository and connect that repository in Streamlit.
 
 ## License
 
