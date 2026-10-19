@@ -14,13 +14,14 @@ import streamlit as st
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from trimgecpu.constants import MIN_SEQUENCE_LENGTH
-from trimgecpu.fasta import FastaRecord, clean_sequence
+from trimgecpu.constants import (
+    DEMO_MAX_BASES,
+    DEMO_MAX_SEQUENCES,
+    demo_rejection,
+)
+from trimgecpu.fasta import parse_fasta_text
 from trimgecpu.pipeline import TriMGECPUClassifier
 
-MAX_SEQUENCES = 100
-MAX_BASES = 2_000_000
-MAX_CHARS = 5_000_000
 EXAMPLE_FASTA = ROOT / "tests" / "fixtures" / "example_mge.fasta"
 
 st.set_page_config(
@@ -33,41 +34,6 @@ st.set_page_config(
 @st.cache_resource
 def load_classifier() -> TriMGECPUClassifier:
     return TriMGECPUClassifier(models_dir=ROOT / "models")
-
-
-def records_from_text(text: str) -> tuple[list[FastaRecord], int]:
-    """Parse pasted or uploaded FASTA. A bare sequence is accepted as one record."""
-    records: list[FastaRecord] = []
-    skipped = 0
-    current_id: str | None = None
-    chunks: list[str] = []
-    bare_index = 0
-
-    def flush() -> None:
-        nonlocal skipped
-        if current_id is None:
-            return
-        sequence = clean_sequence("".join(chunks))
-        if len(sequence) >= MIN_SEQUENCE_LENGTH:
-            records.append(FastaRecord(current_id, sequence))
-        elif sequence:
-            skipped += 1
-
-    for raw_line in text.splitlines():
-        line = raw_line.strip()
-        if not line:
-            continue
-        if line.startswith(">"):
-            flush()
-            current_id = line[1:].split()[0] or f"sequence_{len(records) + 1}"
-            chunks = []
-            continue
-        if current_id is None:
-            bare_index += 1
-            current_id = f"sequence_{bare_index}"
-        chunks.append(line)
-    flush()
-    return records, skipped
 
 
 def predictions_to_tsv(predictions) -> str:
@@ -253,8 +219,8 @@ def render_results(predictions, skipped: int, total_bases: int) -> None:
     st.markdown("### Class probabilities")
     st.altair_chart(class_probability_chart(predictions), use_container_width=True)
     st.caption(
-        "The label is the SVM decision. The bars are calibrated probabilities, "
-        "so the tallest bar can differ from the call."
+        "The label is the SVM decision. The bars are its class probabilities. "
+        "The tallest bar can differ from the call."
     )
     subtype_chart = subtype_probability_chart(predictions)
     if subtype_chart is not None:
@@ -343,24 +309,27 @@ with st.container(border=True):
 with st.expander("About this classifier"):
     st.markdown(
         "The app runs the 5-mer SVM weights shipped with triMGE-cpu. "
-        "On the manuscript test set those weights reach 91.9% accuracy. "
+        "Those weights were fit on the training and validation sequences. "
+        "On the 638 test sequences they reach 91.9% accuracy. "
         "The manuscript reports 91.4% for the model fit on the training split only. "
+        "Class probabilities come from the SVM with probability estimation turned on. "
         "Sequences shorter than 100 bp are skipped. The same classifier is strongest "
         "on contigs of about 10 kb or longer."
     )
 
 if classify:
-    if len(fasta_text) > MAX_CHARS:
+    if demo_rejection(len(fasta_text), 0, 0) == "chars":
         st.error("This paste is too large for the public demo. Use a FASTA under 5 million characters.")
     else:
-        records, skipped = records_from_text(fasta_text)
+        records, skipped = parse_fasta_text(fasta_text)
         total_bases = sum(len(record.sequence) for record in records)
+        rejection = demo_rejection(len(fasta_text), len(records), total_bases)
         if not records:
             st.warning("No sequence of at least 100 bp was found.")
-        elif len(records) > MAX_SEQUENCES or total_bases > MAX_BASES:
+        elif rejection == "batch":
             st.error(
-                f"The public demo accepts up to {MAX_SEQUENCES} sequences "
-                f"and {MAX_BASES:,} bp in one run. "
+                f"The public demo accepts up to {DEMO_MAX_SEQUENCES} sequences "
+                f"and {DEMO_MAX_BASES:,} bp in one run. "
                 f"This input has {len(records)} sequences and {total_bases:,} bp. "
                 "For a larger set, run trimge-cpu locally."
             )
