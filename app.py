@@ -7,6 +7,8 @@ import io
 import sys
 from pathlib import Path
 
+import altair as alt
+import pandas as pd
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parent
@@ -120,6 +122,128 @@ def result_rows(predictions) -> list[dict[str, str | int | float]]:
     return rows
 
 
+CLASS_ORDER = ["Phage", "Phage-Plasmid", "Plasmid"]
+CLASS_COLORS = ["#1F4E79", "#C47B2B", "#2F6F4E"]
+
+
+def class_probability_frame(predictions) -> pd.DataFrame:
+    rows = []
+    for pred in predictions:
+        for key, label in (
+            ("phage", "Phage"),
+            ("phage_plasmid", "Phage-Plasmid"),
+            ("plasmid", "Plasmid"),
+        ):
+            rows.append(
+                {
+                    "Sequence": pred.sequence_id,
+                    "Class": label,
+                    "Probability": pred.mge_probabilities[key],
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def class_probability_chart(predictions) -> alt.Chart:
+    frame = class_probability_frame(predictions)
+    height = max(180, 52 * len(predictions))
+    return (
+        alt.Chart(frame)
+        .mark_bar()
+        .encode(
+            y=alt.Y("Sequence:N", sort=[pred.sequence_id for pred in predictions], title=None),
+            x=alt.X("Probability:Q", scale=alt.Scale(domain=[0, 1]), title="Probability"),
+            color=alt.Color(
+                "Class:N",
+                sort=CLASS_ORDER,
+                scale=alt.Scale(domain=CLASS_ORDER, range=CLASS_COLORS),
+                title=None,
+            ),
+            yOffset=alt.YOffset("Class:N", sort=CLASS_ORDER),
+            tooltip=[
+                "Sequence",
+                "Class",
+                alt.Tooltip("Probability:Q", format=".3f"),
+            ],
+        )
+        .properties(height=height)
+    )
+
+
+def subtype_probability_chart(predictions) -> alt.Chart | None:
+    typed = [pred for pred in predictions if pred.pp_subtype_probabilities]
+    if not typed:
+        return None
+    rows = []
+    for pred in typed:
+        for subtype, probability in pred.pp_subtype_probabilities.items():
+            rows.append(
+                {
+                    "Sequence": pred.sequence_id,
+                    "Subtype": subtype,
+                    "Probability": probability,
+                }
+            )
+    frame = pd.DataFrame(rows)
+    subtype_order = (
+        frame.groupby("Subtype")["Probability"].max().sort_values(ascending=False).index.tolist()
+    )
+    if len(typed) == 1:
+        return (
+            alt.Chart(frame)
+            .mark_bar(color="#C47B2B")
+            .encode(
+                y=alt.Y("Subtype:N", sort=subtype_order, title=None),
+                x=alt.X("Probability:Q", scale=alt.Scale(domain=[0, 1]), title="Probability"),
+                tooltip=["Subtype", alt.Tooltip("Probability:Q", format=".3f")],
+            )
+            .properties(height=max(320, 22 * len(subtype_order)))
+        )
+    return (
+        alt.Chart(frame)
+        .mark_bar()
+        .encode(
+            y=alt.Y("Subtype:N", sort=subtype_order, title=None),
+            x=alt.X("Probability:Q", scale=alt.Scale(domain=[0, 1]), title="Probability"),
+            color=alt.Color("Sequence:N", title=None),
+            yOffset="Sequence:N",
+            tooltip=[
+                "Sequence",
+                "Subtype",
+                alt.Tooltip("Probability:Q", format=".3f"),
+            ],
+        )
+        .properties(height=max(360, 28 * len(subtype_order)))
+    )
+
+
+def render_results(predictions, skipped: int, total_bases: int) -> None:
+    if skipped:
+        st.info(f"Skipped {skipped} sequence(s) shorter than 100 bp.")
+    phage_plasmids = sum(1 for pred in predictions if pred.pp_subtype)
+    left, middle, right = st.columns(3)
+    left.metric("Sequences", len(predictions))
+    middle.metric("Phage-plasmid calls", phage_plasmids)
+    right.metric("Bases", f"{total_bases:,}")
+    st.dataframe(result_rows(predictions), use_container_width=True, hide_index=True)
+    st.subheader("Class probabilities")
+    st.altair_chart(class_probability_chart(predictions), use_container_width=True)
+    st.caption(
+        "The label is the SVM decision. The bars are calibrated probabilities, "
+        "so the tallest bar can differ from the call."
+    )
+    subtype_chart = subtype_probability_chart(predictions)
+    if subtype_chart is not None:
+        st.subheader("Phage-plasmid subtype probabilities")
+        st.altair_chart(subtype_chart, use_container_width=True)
+    st.download_button(
+        "Download TSV",
+        data=predictions_to_tsv(predictions),
+        file_name="trimge_cpu_predictions.tsv",
+        mime="text/tab-separated-values",
+    )
+
+
 st.title("triMGE-cpu")
 st.markdown(
     "Classify a nucleotide sequence as **phage**, **phage-plasmid**, or **plasmid**. "
@@ -174,20 +298,15 @@ if classify:
         else:
             with st.spinner("Classifying"):
                 predictions = load_classifier().predict_records(records)
-            if skipped:
-                st.info(f"Skipped {skipped} sequence(s) shorter than 100 bp.")
-            phage_plasmids = sum(1 for pred in predictions if pred.pp_subtype)
-            left, middle, right = st.columns(3)
-            left.metric("Sequences", len(predictions))
-            middle.metric("Phage-plasmid calls", phage_plasmids)
-            right.metric("Bases", f"{total_bases:,}")
-            st.dataframe(result_rows(predictions), use_container_width=True, hide_index=True)
-            st.download_button(
-                "Download TSV",
-                data=predictions_to_tsv(predictions),
-                file_name="trimge_cpu_predictions.tsv",
-                mime="text/tab-separated-values",
-            )
+            st.session_state["results"] = {
+                "predictions": predictions,
+                "skipped": skipped,
+                "total_bases": total_bases,
+            }
+
+if "results" in st.session_state:
+    saved = st.session_state["results"]
+    render_results(saved["predictions"], saved["skipped"], saved["total_bases"])
 
 st.divider()
 st.caption(
