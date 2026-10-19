@@ -96,6 +96,19 @@ trimge-cpu-report -i predictions.tsv -o report_out
 
 GPU package: [triMGE-gpu](https://version.helsinki.fi/mduddin/triMGE-gpu).
 
+## Public demo
+
+`app.py` is a Streamlit page for the classifiers in `models/`. It accepts a pasted FASTA, an uploaded file, or the included example. One public run is limited to 100 sequences and 2,000,000 bp.
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+[Streamlit Community Cloud](https://share.streamlit.io/) deploys this file from a **public GitHub** repository. Set the main file to `app.py`. The dependency file is `requirements.txt`. Keep scikit-learn in the 1.8 series so the shipped `.joblib` files load.
+
+The University of Helsinki GitLab remote is not a Streamlit Cloud source. To publish the demo, push this repository to a public GitHub repository and connect that repository in Streamlit.
+
 ## License
 
 triMGE-cpu is released under the [MIT License](LICENSE) (copyright 2026 Md Karim Uddin). You may use, copy, modify, and distribute this package, including the trained classifiers in `models/`, for academic or commercial work. Keep the copyright notice and the license text with any copy.
