@@ -113,7 +113,7 @@ The GPU package, triMGE-gpu, is distributed separately.
 
 https://trimge-cpu-wxkbzdebrh3nejpcjdhjum.streamlit.app/
 
-`app.py` is that page. It accepts a pasted FASTA, an uploaded file, or the included example. One public run is limited to 100 sequences and 2,000,000 bp. Keep scikit-learn in the 1.8 series so the shipped `.joblib` files load.
+`app.py` is that page. It accepts a pasted FASTA, an uploaded file, or the included example. One public run is limited to 100 sequences and 2,000,000 bp. Keep scikit-learn in the 1.8 series so the shipped `.joblib` files load. The page needs Streamlit 1.51 or newer.
 
 ```bash
 pip install -r requirements.txt
