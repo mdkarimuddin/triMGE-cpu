@@ -470,7 +470,6 @@ def render_hero() -> None:
         [
             stat("MGE classes", "3"),
             stat("phage-plasmid subtypes", str(len(PP_SUBTYPE_CLASSES))),
-            stat("3-class accuracy, 638 test sequences", "91.9%"),
             stat("features", "5-mer"),
         ]
     )
@@ -512,9 +511,7 @@ def render_how_it_works() -> None:
             <div class="tm-flow-t">Subtype SVM</div>
             <div class="tm-flow-d">Phage-plasmid calls get one of {len(PP_SUBTYPE_CLASSES)} subtypes, such as P1, N15 or SSU5.</div>
           </div></div>
-          <div class="tm-note">Accuracy: 91.9% for these shipped weights on 638 test sequences;
-          the manuscript model, trained on the training split only, reaches 91.4%.
-          Best on contigs ≥ 10 kb. Sequences under {MIN_SEQUENCE_LENGTH} bp are skipped.
+          <div class="tm-note">Best on contigs ≥ 10 kb. Sequences under {MIN_SEQUENCE_LENGTH} bp are skipped.
           Demo limit: {DEMO_MAX_SEQUENCES} sequences or {DEMO_MAX_BASES / 1e6:.0f} Mb per run.</div>
         </div>
         """
